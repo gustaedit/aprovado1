@@ -52,14 +52,6 @@ export default function Services() {
             </div>
           ))}
         </div>
-
-        <div className="text-center mt-16">
-          <h3 className="text-3xl font-bold mb-4 heading-primary">
-            Yago Ramos Treinad
-            or
-          </h3>
-          <p className="text-lg text-gray-300 mb-8 font-century">CREF: 18177-G</p>
-        </div>
       </div>
     </section>
   )

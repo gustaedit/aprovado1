@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Check, Crown, Target } from "lucide-react"
 
 const protocols = [
-  {
+   /* {
     name: "PRESENCIAL",
     subtitle: "Treino presencial personalizado",
     icon: Target,
@@ -17,7 +17,8 @@ const protocols = [
       "Motivação presencial constante",
       "Ajustes imediatos no treino",
     ],
-  },
+  }, */
+
   {
     name: "ONLINE",
     subtitle: "Consultoria online completa",
@@ -31,7 +32,7 @@ const protocols = [
       "Ajustes de treino ilimitados",
       "Consultoria por videochamada",
     ],
-  },
+  }
 ]
 
 export default function Protocols() {

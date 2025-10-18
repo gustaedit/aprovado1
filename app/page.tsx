@@ -51,12 +51,11 @@ export default function PersonalTrainerSite() {
           </div>
         </div>
       </section>
-
+      <About />
       <Services />
       <Contact />
       <Transformations />
       <Protocols />
-      <About />
       <FAQ />
       <Footer scrollToSection={scrollToSection} />
     </div>

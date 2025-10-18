@@ -18,11 +18,11 @@ export default function About() {
                   Lapidando Corpo, Mente e Disciplina
                   <br />
                   <br />
-                  Seja bem-vindo! Aqui, você encontra mais do que um treino, é uma jornada de construção de identidade.
-                  Sou Yago Ramos, treinador com foco em performance e disciplina real. Ajudo pessoas comuns a desenvolverem hábitos extraordinários e conquistarem resultados sustentáveis no corpo, na mente e na vida.
+                  Seja bem-vindo! Aqui, você encontra mais do que um treino, é uma jornada até o seu objetivo.
+    Sou Yago Ramos, treinador especialista em treino para mulheres, e te ajudo a reconquistar a autoestima que você merece!
+
                   <br />
-                  <br />
-                 Consultoria Online | Treinos Presenciais | Produtos para potencializar o seu treino
+                 Bacharel em Educação Física – UNIFACS | Pós-graduado em Fisiologia do Exercício
               </p>
               <div>
                 <Button
