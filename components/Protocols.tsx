@@ -26,11 +26,12 @@ const protocols = [
     color: "from-red-500 to-red-600",
     whatsappLink: "https://wa.me/557181751951?text=Olá!%20Tenho%20interesse%20no%20Plano%20Online.",
     features: [
+      "Avaliação por vídeo chamada!",
       "Treino personalizado online",
       "Atendimento via WhatsApp 24/7",
       "Acompanhamento semanal",
       "Ajustes de treino ilimitados",
-      "Consultoria por videochamada",
+      
     ],
   }
 ]
@@ -46,7 +47,7 @@ export default function Protocols() {
           <p className="text-xl text-gray-300 mb-2 font-century">Transforme seu corpo com nossos protocolos</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-1 gap-8 max-w-6xl mx-auto">
           {protocols.map((protocol, index) => {
             const IconComponent = protocol.icon
             return (
@@ -69,8 +70,9 @@ export default function Protocols() {
                 </div>
 
                 {/* Conteúdo */}
-                <div className="p-8">
-                  <ul className="space-y-4 mb-8">
+                
+                <div className="p-8 flex flex-col items-center ">
+                  <ul className="space-y-4 mb-8 text-gray-600 font-century">
                     {protocol.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-start text-gray-700">
                         <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
