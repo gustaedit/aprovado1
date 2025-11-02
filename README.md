@@ -1,1 +1,92 @@
-Documentação do Trabalho Prático (TP1)Classificação de Atividades Humanas1. Introdução e ObjetivoO objetivo deste projeto foi desenvolver um pipeline completo de análise de dados em Python para o reconhecimento de atividades humanas. Para tal, utilizámos o dataset FORTH-TRACE benchmark, que contém dados de 15 participantes recolhidos por 5 sensores (acelerómetro, giroscópio e magnetómetro).O trabalho foi dividido em três fases principais:Configuração e Carregamento dos DadosAnálise e Tratamento de OutliersExtração e Seleção de Características2. Tarefas 1 & 2: Configuração e Carregamento de DadosO que fizemos:Configurámos um ambiente no Google Colab com todas as bibliotecas necessárias (NumPy, Pandas, SciPy, Scikit-learn, etc.).Instalámos a biblioteca skfeature-chappers, necessária para as tarefas de seleção de features (4.5).Montámos o Google Drive e estabelecemos a ligação à pasta dos dados no caminho /content/drive/MyDrive/interacambio/FORTH_TRACE_DATASET-master.Implementámos a rotina carregar_dados_participante_local que, para um determinado participante, lê e concatena os 5 ficheiros CSV (partXdev1.csv a partXdev5.csv).Executámos esta rotina para todos os 14 participantes disponíveis e consolidámos os dados num único DataFrame do Pandas (df).3. Tarefa 3: Análise e Tratamento de OutliersEsta secção focou-se em identificar dados anómalos (outliers) utilizando diferentes métodos.3.0. Cálculo dos MódulosO que fizemos: Antes da análise, transformámos os dados 3D (x,y,z) de cada sensor numa única medida de magnitude, o módulo, usando a fórmula euclidiana $||\vec{t}||=\sqrt{t_{x}^{2}+t_{y}^{2}+t_{z}^{2}}$.3.1. Boxplots por Atividade e SensorO que fizemos: Gerámos boxplots para visualizar a distribuição dos módulos de cada sensor (acelerómetro, giroscópio, magnetómetro) para cada uma das 16 atividades.Conclusão: Os gráficos mostraram que os módulos do acelerómetro e giroscópio são altamente discriminativos; atividades dinâmicas (como "Walk" e "Climb Stair") têm valores e variabilidade muito maiores do que atividades estáticas ("Sit", "Stand"). O magnetómetro pareceu menos útil, com distribuições muito semelhantes entre as atividades.3.2. Densidade de OutliersO que fizemos: Focando-nos apenas no sensor do pulso direito (ID 2), calculámos a densidade de outliers usando a fórmula $d=\frac{n_{o}}{n_{r}}\times100$. Os outliers ($n_o$) foram definidos pelo método padrão IQR.Conclusão: As atividades de transição (ex: "Stand->Sit", "Walk->stand") apresentaram as maiores densidades de outliers. Concluímos que estes não são "ruído", mas sim eventos característicos da própria atividade (picos de movimento) que o método estatístico identifica como anomalias.3.3, 3.4 & 3.5. Análise com Z-ScoreO que fizemos: Implementámos a função identificar_outliers_zscore e aplicámo-la aos dados com $k=3$, $k=3.5$ e $k=4$.Conclusão (Alteração 3.3): Observámos que o Z-Score identificou muito poucos outliers. A nossa conclusão é que isto se deve a duas razões:Os dados não seguem uma distribuição normal.O Z-Score é sensível aos próprios outliers. Os valores extremos "puxam" a média e "inflacionam" o desvio padrão, fazendo com que outliers menos extremos pareçam "normais" e fiquem dentro do limiar k.3.6 & 3.7. Deteção de Outliers com K-MeansO que fizemos (Alteração 3.6): Implementámos o K-Means e executámo-lo no dataset completo (milhões de pontos).O que fizemos (Alteração 3.7): Para identificar os outliers, aplicámos a lógica pedida: para cada cluster, calculámos o IQR das distâncias ao centroide e rejeitámos os pontos cuja distância era superior a $Q3 + 1.5 \times IQR$.Conclusão: Esta abordagem multivariada é computacionalmente exigente, mas aplica uma lógica robusta (IQR) para identificar pontos que estão genuinamente longe do seu grupo.4. Tarefa 4: Extração e Seleção de Características4.1. Análise de Significância EstatísticaO que fizemos: Usámos o teste de Kolmogorov-Smirnov (KS), que confirmou que os dados não são normais.O que fizemos (Alteração 4.1): Substituímos o Kruskal-Wallis pelo teste U de Mann-Whitney para realizar comparações par-a-par entre todas as 16 atividades.Conclusão: A vasta maioria dos pares de atividades mostrou ter diferenças estatisticamente significativas (p < 0.05). Isto prova que os módulos dos sensores são features estatisticamente válidas para a classificação.4.2. Extração de Features do ArtigoO que fizemos: Esta tarefa exigia a implementação de features de um artigo. Para permitir a continuação do trabalho, criámos um feature set de 12 dimensões (os 9 eixos x,y,z originais e os 3 módulos calculados).4.3 & 4.4. Análise de Componentes Principais (PCA)O que fizemos (Alteração 4.3): Conforme solicitado, implementámos o PCA "do zero" (pca_from_scratch). Esta função usa NumPy para calcular a Matriz de Covariância, Eigenvalues e Eigenvectors.Conclusão (Alteração 4.4): Analisámos a importância de cada componente usando os eigenvalues (conforme a "explicação da lousa"). A variância explicada por cada componente é o seu $Eigenvalue$ / $Soma(Todos Eigenvalues)$. Determinámos o número de componentes necessárias para explicar 75% da variância.4.5 & 4.6. Seleção de Features (Fisher Score e ReliefF)O que fizemos: Implementámos os algoritmos Fisher Score e ReliefF no nosso feature set de 12 dimensões.Conclusão (Alteração 4.6): Identificámos e apresentámos as 10 melhores features de acordo com cada método. Os rankings foram semelhantes, destacando mod_accel, mod_gyro e os eixos x e z do acelerómetro como os mais importantes.
+# TP1 - Classificação de Atividades Humanas (EA/ECAC 2025)
+
+[cite_start]Este repositório contém o *pipeline* de análise de dados desenvolvido para o Trabalho Prático 1 (TP1) da disciplina de EA/ECAC 2025[cite: 1]. [cite_start]O objetivo é implementar um sistema para a classificação de atividades humanas a partir de dados de sensores, cobrindo as fases de preparação de dados, análise de *outliers* e engenharia de características[cite: 11, 12].
+
+[cite_start]O *dataset* utilizado é o `FORTH-TRACE benchmark`, que regista 16 atividades [cite: 41] [cite_start]usando 5 sensores[cite: 16, 43].
+
+## 🛠️ Tecnologias e Bibliotecas
+
+* **Ambiente:** Google Colab
+* **Linguagem:** Python 3
+* **Bibliotecas Principais:**
+    * **NumPy:** Para computação numérica e implementação do PCA.
+    * **Pandas:** Para carregamento e manipulação de dados (criação do DataFrame `df`).
+    * **Matplotlib & Seaborn:** Para visualização de dados (Boxplots, gráficos 3D).
+    * **Scikit-learn (`sklearn`):** Para `KMeans`, `DBSCAN` e `StandardScaler`.
+    * **SciPy:** Para testes estatísticos (`kstest`, `mannwhitneyu`).
+    * **skfeature-chappers:** Para algoritmos de seleção de *features* (`f_score`, `reliefF`).
+
+## 🚀 Como Executar
+
+Este projeto foi desenhado para ser executado num *notebook* Google Colab.
+
+### Pré-requisitos
+
+1.  **Dataset:** Faça o download do *dataset* (ZIP) a partir do [repositório oficial do FORTH-TRACE](https://github.com/spl-icsforth/FORTH_TRACE_DATASET).
+2.  **Google Drive:** Descompacte o ZIP. Carregue a pasta `FORTH_TRACE_DATASET-master` para o seu Google Drive.
+3.  **Estrutura de Pastas:** O código espera que a pasta esteja no seguinte caminho:
+    * `MyDrive/interacambio/FORTH_TRACE_DATASET-master/`
+    * *(Se o seu caminho for diferente, ajuste a variável `base_path` no Bloco 1 do código.)*
+
+### Instruções de Execução
+
+1.  Abra o *notebook* (`.ipynb`) no Google Colab.
+2.  No menu, selecione **"Ambiente de execução" -> "Reiniciar ambiente de execução"**.
+3.  Execute os blocos de código em sequência (do Bloco 1 ao Bloco 8).
+4.  O **Bloco 1** irá pedir autorização para aceder ao seu Google Drive. Conceda a permissão.
+5.  Se o Bloco 1 for concluído com a mensagem "Dados carregados e DataFrame criado com sucesso", os restantes blocos funcionarão corretamente.
+
+## 📂 Estrutura do Código (Blocos do Notebook)
+
+O *notebook* está dividido nos seguintes blocos funcionais:
+
+* **Bloco 1: Configuração e Carregamento**
+    * Instala dependências (`skfeature-chappers`).
+    * Monta o Google Drive.
+    * Define o caminho dos dados (`base_path`).
+    * **Tarefa 2:** Implementa `carregar_dados_participante_local` para carregar os dados.
+    * [cite_start]**Tarefa 3 (Início):** Implementa `calcular_modulos`[cite: 53, 56].
+    * Cria o DataFrame `df` principal com todos os dados.
+
+* **Bloco 2: Tarefa 3.1 - Boxplots por Atividade**
+    * [cite_start]Gera 3 *boxplots* (Acelerómetro, Giroscópio, Magnetómetro) para todos os sujeitos[cite: 57].
+
+* **Bloco 3: Tarefa 3.2 - Densidade de *Outliers***
+    * [cite_start]Filtra os dados pelo sensor do "Pulso direito"[cite: 60].
+    * [cite_start]Calcula a densidade de *outliers* ($d=\frac{n_{o}}{n_{r}}\times100$) usando o método IQR[cite: 62].
+
+* **Bloco 4: Tarefas 3.3, 3.4, 3.5 - Análise com Z-Score**
+    * [cite_start]**Tarefa 3.3:** Implementa `identificar_outliers_zscore`[cite: 68].
+    * [cite_start]**Tarefa 3.4:** Aplica a função para $k=3, 3.5, 4$ e gera gráficos[cite: 69, 70].
+    * **Tarefa 3.5:** Discute os resultados e a eficácia do Z-Score[cite: 71].
+
+* **Bloco 5: Tarefas 3.6, 3.7 - K-Means e DBSCAN**
+    * **Tarefa 3.6:** Executa o K-Means no *dataset* completo[cite: 74].
+    * **Tarefa 3.7:** Implementa a lógica de deteção de *outliers* baseada no IQR das distâncias ao centroide.
+    * **Tarefa 3.7.1 (Bónus):** Executa o DBSCAN numa amostra de dados[cite: 77].
+
+* **Bloco 6: Tarefa 4.1 - Análise de Significância Estatística**
+    * Verifica a normalidade dos dados com o teste de Kolmogorov-Smirnov[cite: 82].
+    * [cite_start]Implementa o teste **U de Mann-Whitney** para comparações par-a-par entre as atividades[cite: 81].
+
+* **Bloco 7: Tarefas 4.2 a 4.6 - Extração e Seleção de Características**
+    * **Tarefa 4.2:** Define um *feature set* de 12 dimensões (9 eixos + 3 módulos) como exemplo.
+    * [cite_start]**Tarefa 4.3:** Implementa o **PCA "do zero"** (`pca_from_scratch`) usando NumPy[cite: 92].
+    * **Tarefa 4.4:** Analisa a variância explicada usando *eigenvalues* e determina o n.º de componentes para 75%[cite: 94, 95].
+    * [cite_start]**Tarefa 4.5:** Implementa **Fisher Score** e **ReliefF**[cite: 99].
+    * [cite_start]**Tarefa 4.6:** Apresenta as **10 melhores *features*** de cada método[cite: 101].
+
+* **Bloco 8: Gráficos Adicionais (Pedido do Utilizador)**
+    * Gera 5 gráficos (um por sensor), cada um contendo 3 sub-plots (Acelerómetro, Giroscópio, Magnetómetro).
+
+## 📈 Conclusões Principais
+
+1.  **Qualidade dos Dados (Tarefas 3.1, 3.2):** As atividades de transição (ex: "Stand->Sit") estão repletas de *outliers*. Concluímos que estes não são ruído, mas sim **eventos característicos** da própria atividade, sendo má ideia removê-los.
+2.  **Métodos de *Outliers* (Tarefas 3.5, 3.7):** O **Z-Score** (Tarefa 3.3) revelou-se ineficaz para estes dados, pois a média e o desvio padrão são distorcidos pelos próprios *outliers*. A abordagem **K-Means + IQR das Distâncias** (Tarefa 3.7) é uma alternativa multivariada mais robusta.
+3.  **Significância das *Features* (Tarefa 4.1):** O teste **U de Mann-Whitney** confirmou que a maioria dos pares de atividades apresenta distribuições estatisticamente diferentes (p < 0.05). Isto valida que os sensores fornecem dados úteis para a classificação.
+4.  [cite_start]**Redução de Dimensionalidade (Tarefa 4.4):** Implementámos um PCA "do zero"[cite: 92]. [cite_start]Descobrimos que **[X] componentes** (substituir por X o valor obtido na execução) são suficientes para explicar 75% da variância total dos dados[cite: 95].
+5.  [cite_start]**Seleção de *Features* (Tarefa 4.6):** Ao classificar 12 *features* (9 eixos + 3 módulos), os algoritmos **Fisher Score** e **ReliefF** concordaram que `mod_accel`, `mod_gyro` e os eixos `x` e `z` do acelerómetro estão entre as **10 *features* mais importantes** para a classificação[cite: 101].
+
+## 🧑‍💻 Contexto
+
+[cite_start]Este projeto foi realizado no âmbito do Trabalho Prático 1 (TP1) [cite: 1] [cite_start]da disciplina **EA/ECAC 2025**, lecionada por Paulo de Carvalho, Marco Simões e Francisco Antunes[cite: 8].
