@@ -39,6 +39,8 @@ export default function PersonalTrainerSite() {
 
       <Hero scrollToSection={scrollToSection} />
 
+      
+
       {/* Red Banner */}
       <section className="bg-red-600 py-4 overflow-hidden">
         <div className="overflow-hidden w-full">
